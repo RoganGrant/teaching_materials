@@ -36,12 +36,18 @@ ui <- fluidPage(
                         max = 500,
                         value = 100,
                         step = 50),
-            sliderInput("n",
-                        "Group n",
+            sliderInput("n_covid",
+                        "COVID-19 n",
                         min = 0,
                         max = 100,
                         value = 10, 
-                        step = 1)
+                        step = 1),
+            sliderInput("n_healthy",
+                        "Healthy n",
+                        min = 0,
+                        max = 100,
+                        value = 10, 
+                        step = 1),
             ),
 
         # Show a plot of the generated distribution
@@ -64,7 +70,6 @@ ui <- fluidPage(
         )
     )
 )
-
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
@@ -76,15 +81,15 @@ server <- function(input, output) {
   set.seed(12345)
   get_df = reactive({
     set.seed(12345)
-    healthy_dist = rnorm(n = input$n, mean = (division_point - (input$mean_shift / 2)), sd = 100)
+    healthy_dist = rnorm(n = input$n_healthy, mean = (division_point - (input$mean_shift / 2)), sd = 100)
     #set all negative values to 0 to better simulate cytokine data
     healthy_dist[healthy_dist < 0] = 0
     
     set.seed(12345)
-    covid_dist = rnorm(n = input$n, mean = (division_point + (input$mean_shift / 2)), sd = 100)
+    covid_dist = rnorm(n = input$n_covid, mean = (division_point + (input$mean_shift / 2)), sd = 100)
     
     #join into a single df
-    out = data.frame(diagnosis = factor(c(rep("Healthy", input$n), rep("COVID-19", input$n)),
+    out = data.frame(diagnosis = factor(c(rep("Healthy", input$n_healthy), rep("COVID-19", input$n_covid)),
                                        levels = c("COVID-19", "Healthy")),
                     CXCL10 = c(healthy_dist, covid_dist))
     return(out)
